@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GIPHY API</title>
+    <style type="text/css">
+        button,
+        div,
+        form,
+        input {
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>COUNTRY GIF SEARCH</h1>
+
+        <!-- Rendered buttons will get dumped here  -->
+        <div id="buttons-view"></div>
+
+        <form id="gif-form">
+            <label for="gif-input">ADD A COUNTRY DUDE!</label>
+            <input type="text" id="gif-input"><br>
+
+            <!-- Button triggers new movie to be added -->
+            <input id="add-gif" type="submit" value="ADD A GIF DUDE!">
+        </form>
+
+        <!-- Movies will get dumped Here -->
+        <div id="gifs-view"></div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Initial array of movies
+            var gifs = ["peru", "mexico", "USA", "canada", "honduras", "ecuador", "france", "spain", "italy"];
+
+            // displayMovieInfo function re-renders the HTML to display the appropriate content
+            function displayGifsInfo() {
+
+                var gif = $(this).attr("data-name");
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+                    gif + "&limit=10&api_key=Ev2tVvitD5aJr8pRhPwwtIIwCxPNxb4E";
+
+                // Creates AJAX call for the specific movie button being clicked
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+                    var responseData = response.data;
+                    for (i = 0; i < responseData.length; i++) {
+                        var gifDiv = $("<div>");
+                        var gifTitle = $("<p>").html(response.data[i].title);
+                        gifDiv.append(gifTitle);
+                        var gifRating = $("<p>").html(response.data[i].rating);
+                        gifDiv.append(gifRating);
+
+                        var imgStill = (response.data[i].images.fixed_height_still.url);
+                        var imgURL = (response.data[i].images.fixed_height.url);
+                        var image = $("<img>").attr("src", imgStill).attr("data-animate", imgURL).attr("data-still", imgStill).attr("data-state", "still").attr("class", "giphyGif");
+                        gifDiv.append(image);
+                        $("#gifs-view").prepend(gifDiv);
+                    }
+                    $(".giphyGif").on("click", function () {
+                            
+                            var state = $(this).attr("data-state");
+                            if (state === "still") {
+                                $(this).attr("src", $(this).attr("data-animate"));
+                                $(this).attr("data-state", "animate");
+                            } else {
+                                $(this).attr("src", $(this).attr("data-still"));
+                                $(this).attr("data-state", "still");
+                            }
+                        });
+
+                });
+
+            }
+
+            function renderButtons() {
+                $("#buttons-view").empty();
+                for (var i = 0; i < gifs.length; i++) {
+                    var a = $("<button>");
+                    a.addClass("gif");
+                    a.attr("data-name", gifs[i]);
+                    a.text(gifs[i]);
+                    $("#buttons-view").append(a);
+                }
+            }
+
+            $("#add-gif").on("click", function (event) {
+                event.preventDefault();
+                var gif = $("#gif-input").val().trim();
+                gifs.push(gif);
+                renderButtons();
+            });
+
+            // Adding click event listeners to all elements with a class of "movie"
+            $(document).on("click", ".gif", displayGifsInfo);
+
+            // Calling the renderButtons function to display the intial buttons
+            renderButtons();
+        </script>
+    </div>
+
+</body>
+
+</html>
