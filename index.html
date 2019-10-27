@@ -57,6 +57,7 @@
                         var gifTitle = $("<p>").html(response.data[i].title);
                         gifDiv.append(gifTitle);
                         var gifRating = $("<p>").html(response.data[i].rating);
+                        console.log(gifRating);
                         gifDiv.append(gifRating);
 
                         var imgStill = (response.data[i].images.fixed_height_still.url);
